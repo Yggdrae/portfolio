@@ -368,9 +368,46 @@
           gap: 20px;
         }
 
+        /* Lua menor em mobile */
+        .creepy-moon {
+          width: clamp(180px, 50vw, 280px);
+          top: -5%;
+          right: -10%;
+        }
+
+        /* Ícones menores e reposicionados em mobile (sem skew) */
+        .btn-icon {
+          transform: translateY(-50%);
+          left: -20px;
+        }
+
+        .shinigami-icon {
+          width: 70px;
+          height: 70px;
+        }
+
+        .scythe-icon {
+          width: 65px;
+          height: 65px;
+          left: -5px;
+        }
+
+        .soul-icon {
+          width: 55px;
+          height: 55px;
+          left: -15px;
+        }
+
         .menu-btn {
           transform: skewX(0);
           max-width: 100%;
+          padding-left: 50px;
+          margin: 8px 0;
+        }
+
+        .menu-btn:hover .btn-icon,
+        .menu-btn.active .btn-icon {
+          transform: translateY(-50%) scale(1.1);
         }
 
         .menu-btn:hover,
@@ -385,6 +422,11 @@
           box-shadow: -6px 6px 0 var(--accent);
         }
 
+        .main-title {
+          font-size: clamp(2rem, 8vw, 3rem);
+          margin-bottom: 30px;
+        }
+
         @keyframes slashIn {
           0% {
             clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%);
@@ -396,6 +438,51 @@
             opacity: 1;
             transform: translateY(0);
           }
+        }
+      }
+
+      /* Telas muito pequenas */
+      @media (max-width: 480px) {
+        .btn-icon {
+          left: -12px;
+        }
+
+        .shinigami-icon {
+          width: 55px;
+          height: 55px;
+        }
+
+        .scythe-icon {
+          width: 50px;
+          height: 50px;
+          left: 0px;
+        }
+
+        .soul-icon {
+          width: 42px;
+          height: 42px;
+          left: -8px;
+        }
+
+        .menu-btn {
+          padding-left: 40px;
+          font-size: clamp(1rem, 4vw, 1.4rem);
+        }
+
+        .container {
+          padding: 15px;
+        }
+
+        .panel {
+          padding: 20px;
+        }
+
+        .panel h2 {
+          font-size: 2rem;
+        }
+
+        .creepy-moon {
+          width: clamp(140px, 45vw, 200px);
         }
       }
     </style>
