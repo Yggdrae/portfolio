@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Soul Collector Portfolio</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bangers&family=Oswald:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-color: #1a1a1a;
+        --primary: #fcd34d; /* Amarelo Soul Eater */
+        --accent: #dc2626; /* Vermelho Sangue */
+        --dark: #000000;
+        --light: #f8fafc;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--light);
+        font-family: "Oswald", sans-serif;
+        overflow-x: hidden;
+        display: flex;
+        min-height: 100vh;
+      }
+
+      /* Ícones dos botões */
+      .btn-icon {
+        position: absolute;
+        left: -38px;
+        top: 50%;
+        transform: translateY(-50%) skewX(15deg); /* Compensa o skew do botão */
+        object-fit: contain;
+        filter: drop-shadow(2px 2px 0 var(--dark));
+        pointer-events: none;
+        z-index: 2;
+        transition:
+          filter 0.1s ease,
+          transform 0.1s ease;
+      }
+
+      .shinigami-icon {
+        width: 120px;
+        height: 120px;
+      }
+
+      .scythe-icon {
+        width: 115px;
+        height: 115px;
+        top: 50%;
+        left: -15px;
+        filter: drop-shadow(2px 2px 0 var(--dark));
+      }
+
+      .soul-icon {
+        width: 95px;
+        height: 95px;
+        left: -30px;
+      }
+
+      .menu-btn:hover .btn-icon,
+      .menu-btn.active .btn-icon {
+        filter: drop-shadow(2px 2px 0 var(--accent));
+        transform: translateY(-50%) skewX(15deg) scale(1.1);
+      }
+
+      /* A Lua Clássica ao Fundo */
+      .creepy-moon {
+        position: absolute;
+        top: -10%;
+        right: -5%;
+        width: clamp(300px, 40vw, 500px);
+        aspect-ratio: 1 / 1;
+        z-index: -1;
+      }
+
+      .creepy-moon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        filter: drop-shadow(0 0 80px rgba(252, 211, 77, 0.4));
+      }
+
+      /* --- TELA DE ENTRADA --- */
+      .intro-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        pointer-events: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
+
+      .intro-overlay .half {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: var(--dark);
+        transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+      }
+
+      .intro-overlay .top-half {
+        clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+      }
+
+      .intro-overlay .bottom-half {
+        clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+      }
+
+      .intro-overlay .slash-line {
+        position: absolute;
+        width: 150%;
+        height: 4px;
+        background: var(--accent);
+        transform: rotate(-45deg) scaleX(0);
+        box-shadow: 0 0 20px var(--accent);
+        z-index: 10000;
+      }
+
+      .intro-overlay.start-slash .slash-line {
+        animation: slashStrike 0.3s forwards ease-in;
+      }
+
+      .intro-overlay.split .top-half {
+        transform: translateY(-100%);
+      }
+      .intro-overlay.split .bottom-half {
+        transform: translateY(100%);
+      }
+
+      /* Zoom-in do site */
+      body.loaded .container {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      @keyframes slashStrike {
+        0% {
+          transform: rotate(-45deg) scaleX(0);
+          opacity: 1;
+        }
+        50% {
+          transform: rotate(-45deg) scaleX(1);
+          opacity: 1;
+        }
+        100% {
+          transform: rotate(-45deg) scaleX(1) translateY(-20px);
+          opacity: 0;
+        }
+      }
+
+      /* Grafite / Sangue no fundo */
+      .splatter {
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(
+          circle,
+          var(--accent) 1px,
+          transparent 1px
+        );
+        background-size: 50px 50px;
+        opacity: 0.1;
+        z-index: -1;
+        pointer-events: none;
+      }
+
+      .container {
+        display: flex;
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 40px;
+        gap: 40px;
+        transform: scale(0.85);
+        opacity: 0;
+        transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      /* Coluna da Esquerda: Menus */
+      .menu-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        z-index: 10;
+      }
+
+      .main-title {
+        font-family: "Bangers", cursive;
+        font-size: clamp(3rem, 5vw, 4rem);
+        color: var(--light);
+        text-shadow:
+          4px 4px 0 var(--dark),
+          8px 8px 0 var(--accent);
+        margin-bottom: 50px;
+        transform: rotate(-3deg);
+        letter-spacing: 2px;
+        line-height: 1.1;
+      }
+
+      /* Estilo dos Botões Angulares */
+      .menu-btn {
+        display: block;
+        width: 100%;
+        max-width: 400px;
+        margin: 10px 0;
+        padding: 15px 20px;
+        background: var(--primary);
+        color: var(--dark);
+        border: 5px solid var(--dark);
+        font-family: "Oswald", sans-serif;
+        font-size: clamp(1.2rem, 2vw, 2rem);
+        font-weight: bold;
+        text-transform: uppercase;
+        text-align: left;
+        cursor: pointer;
+        position: relative;
+        transform: skewX(-15deg);
+        box-shadow: 8px 8px 0 var(--dark);
+        transition: all 0.1s ease;
+        overflow: visible;
+        padding-left: 70px;
+      }
+
+      .menu-btn .subtext {
+        display: block;
+        font-size: 0.9rem;
+        color: var(--accent);
+        letter-spacing: 1px;
+        margin-top: -2px;
+      }
+
+      /* Efeito Hover: Inversão de cores + Ressonância (Tremor) */
+      .menu-btn:hover,
+      .menu-btn.active {
+        background: var(--dark);
+        color: var(--primary);
+        border-color: var(--primary);
+        box-shadow: 12px 12px 0 var(--accent);
+        animation: resonance 0.3s infinite alternate;
+      }
+
+      .menu-btn:hover .subtext,
+      .menu-btn.active .subtext {
+        color: var(--light);
+      }
+
+      @keyframes resonance {
+        0% {
+          transform: skewX(-15deg) translate(0, 0);
+        }
+        100% {
+          transform: skewX(-15deg) translate(3px, -3px);
+        }
+      }
+
+      /* Coluna da Direita: Conteúdo */
+      .content-section {
+        flex: 1.5;
+        display: flex;
+        align-items: center;
+        position: relative;
+      }
+
+      .panel {
+        display: none;
+        background: rgba(0, 0, 0, 0.85);
+        border: 4px solid var(--primary);
+        padding: 40px;
+        width: 100%;
+        transform: skewX(-5deg);
+        box-shadow: -12px 12px 0 var(--accent);
+      }
+
+      /* A classe .active-panel dispara a exibição e a animação */
+      .panel.active-panel {
+        display: block;
+        animation: slashIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
+
+      .panel h2 {
+        font-family: "Bangers", cursive;
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 20px;
+        letter-spacing: 2px;
+      }
+
+      .panel p {
+        font-size: 1.2rem;
+        line-height: 1.6;
+        margin-bottom: 15px;
+      }
+
+      .panel ul {
+        list-style-type: square;
+        padding-left: 20px;
+        font-size: 1.1rem;
+      }
+
+      .panel li {
+        margin-bottom: 15px;
+        color: var(--light);
+      }
+
+      .panel li strong {
+        color: var(--primary);
+      }
+
+      /* Animação de entrada como se fosse um corte de foice */
+      @keyframes slashIn {
+        0% {
+          clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%);
+          opacity: 0;
+          transform: skewX(-5deg) translateX(50px);
+        }
+        100% {
+          clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+          opacity: 1;
+          transform: skewX(-5deg) translateX(0);
+        }
+      }
+
+      /* --- ANIMAÇÃO DE SAÍDA (O CORTE FATAL) --- */
+      .panel.slashed-out {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%) skewX(-5deg);
+        width: 100%;
+        display: block;
+        animation: fatalSlash 0.3s cubic-bezier(0.55, 0.085, 0.68, 0.53)
+          forwards;
+      }
+
+      @keyframes fatalSlash {
+        0% {
+          clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+          opacity: 1;
+        }
+        20% {
+          background-color: var(--accent);
+          color: var(--dark);
+          border-color: var(--dark);
+          box-shadow: 0 0 30px var(--accent);
+        }
+        100% {
+          clip-path: polygon(0 0, 100% -20%, 100% 0%, 0 20%);
+          opacity: 0;
+          transform: translateY(100px) skewX(-5deg);
+        }
+      }
+
+      /* Responsividade para Mobile */
+      @media (max-width: 900px) {
+        .container {
+          flex-direction: column;
+          padding: 20px;
+          gap: 20px;
+        }
+
+        .menu-btn {
+          transform: skewX(0);
+          max-width: 100%;
+        }
+
+        .menu-btn:hover,
+        .menu-btn.active {
+          animation: none;
+          transform: scale(1.02);
+        }
+
+        .panel {
+          transform: skewX(0);
+          padding: 25px;
+          box-shadow: -6px 6px 0 var(--accent);
+        }
+
+        @keyframes slashIn {
+          0% {
+            clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%);
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          100% {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="intro-overlay" id="introOverlay">
+      <div class="slash-line"></div>
+      <div class="half top-half"></div>
+      <div class="half bottom-half"></div>
+    </div>
+
+    <div class="creepy-moon"><img src="moon_bg.png" alt="Moon" /></div>
+    <div class="splatter"></div>
+
+    <div class="container">
+      <nav class="menu-section" role="tablist">
+        <h1 class="main-title">YGGDRAE<br />SOUL COLLECTOR</h1>
+
+        <button class="menu-btn active" data-target="profile" role="tab">
+          <img
+            src="shinigami_icon.webp"
+            alt=""
+            class="btn-icon shinigami-icon"
+          />
+          Meister Profile
+          <span class="subtext">About Me</span>
+        </button>
+        <button class="menu-btn" data-target="weapon" role="tab">
+          <img src="soul_scythe_icon.png" alt="" class="btn-icon scythe-icon" />
+          Death Weapon Specs
+          <span class="subtext">Skills & Arsenal</span>
+        </button>
+        <button class="menu-btn" data-target="souls" role="tab">
+          <img src="soul_soul_icon.png" alt="" class="btn-icon soul-icon" />
+          Collected Souls
+          <span class="subtext">Projects</span>
+        </button>
+      </nav>
+
+      <main class="content-section">
+        <div id="profile" class="panel active-panel" role="tabpanel">
+          <h2>Meister Profile</h2>
+          <p>
+            Opa, tudo bem? Me chamo Victor, tenho 26 anos. Sou
+            <strong>desenvolvedor Full Stack</strong> na
+            <strong>Lojas CEM</strong> há um ano e meio e estou cursando o
+            último semestre de
+            <strong>Análise e Desenvolvimento de Sistemas</strong> na
+            <strong>FATEC Indaiatuba</strong>.
+          </p>
+          <p>
+            Também tenho uma paixão por <strong>desenvolvimento Mobile</strong>,
+            cursando <strong>React Native</strong> e <strong>Kotlin</strong> por
+            conta própria na plataforma da <strong>Rocketseat</strong>.
+          </p>
+          <p>
+            Longe do código, gosto de ler mangás, sendo meus favoritos:
+            <strong>One Piece</strong>,
+            <strong>JoJo's Bizarre Adventure</strong> e
+            <strong>Fullmetal Alchemist</strong>, jogar no meu Nintendo Switch e
+            ouvir música, especialmente <strong>Thrash Metal</strong> e
+            <strong>Nu Metal</strong>.
+          </p>
+        </div>
+
+        <div id="weapon" class="panel" role="tabpanel">
+          <h2>Death Weapon Specs</h2>
+          <p>Minha stack:</p>
+          <ul>
+            <li>
+              <strong>Mobile:</strong> Kotlin para Android nativo e React Native
+              para aplicações multiplataforma.
+            </li>
+            <li>
+              <strong>Web & Backend (TS/JS):</strong> Domínio do ecossistema com
+              TypeScript, Node.js, e Nest.js. No frontend, React e Next.js.
+            </li>
+            <li>
+              <strong>Infra & Dados:</strong> Docker para conteinerização e
+              PostgreSQL para gerenciamento de dados.
+            </li>
+          </ul>
+        </div>
+
+        <div id="souls" class="panel" role="tabpanel">
+          <h2>Collected Souls</h2>
+          <p>Alguns dos projetos nos quais trabalhei recentemente:</p>
+          <ul>
+            <li>
+              <strong>Versteck:</strong> Password manager Zero-Knowledge,
+              offline-first, construído com React Native e Expo. Criptografia
+              AES-256-GCM com derivação de chave via PBKDF2 (100k iterações,
+              SHA-512). Sem servidores, sem cloud — os dados ficam encriptados
+              localmente no dispositivo. Stack: TypeScript, React Native Paper,
+              TanStack Query e módulos nativos de criptografia em C++.
+            </li>
+            <li>
+              <strong>Zenith:</strong> App mobile de rastreamento emocional com
+              dois modos — Pessoal e Profissional. Pacientes registram humor
+              diário, documentam crises com gatilhos e acompanham padrões via
+              dashboard. Profissionais se vinculam aos pacientes via QR Code e
+              visualizam os dados em tempo real (read-only). Stack: Expo SDK 55,
+              TypeScript, React Native Paper, Zustand, Fastify, Prisma e
+              PostgreSQL. Conformidade com LGPD para dados sensíveis de saúde.
+            </li>
+          </ul>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // --- Animação da Lua (requestAnimationFrame) ---
+      (function () {
+        const moon = document.querySelector(".creepy-moon");
+        let t = 0,
+          last = null;
+
+        function ease(x) {
+          return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+        }
+
+        function getRock(t) {
+          const p = (t % 5.0) / 5.0;
+          const e = p < 0.5 ? ease(p * 2) : ease(2 - p * 2);
+          return (e * 2 - 1) * 2.5;
+        }
+
+        function getBob(t) {
+          const p = ((t + 1.2) % 6.0) / 6.0;
+          const e = p < 0.5 ? ease(p * 2) : ease(2 - p * 2);
+          return (e * 2 - 1) * 2;
+        }
+
+        function getScale(t) {
+          const p = (t % 7.0) / 7.0;
+          const e = p < 0.5 ? ease(p * 2) : ease(2 - p * 2);
+          return 1 + (e * 2 - 1) * 0.012;
+        }
+
+        function getJerk(t) {
+          const p = (t % 12.0) / 12.0;
+          if (p < 0.84) return 0;
+          const jt = (p - 0.84) / 0.16;
+          return Math.sin(jt * Math.PI * 4) * 3.5 * (1 - jt);
+        }
+
+        function frame(ts) {
+          if (!last) last = ts;
+          t += (ts - last) / 1000;
+          last = ts;
+
+          const rot = getRock(t) + getJerk(t);
+          const bob = getBob(t);
+          const scale = getScale(t);
+
+          moon.style.transform = `translateY(${bob.toFixed(2)}px) rotate(${rot.toFixed(3)}deg) scale(${scale.toFixed(4)})`;
+
+          requestAnimationFrame(frame);
+        }
+
+        requestAnimationFrame(frame);
+      })();
+
+      // --- Animação de entrada ---
+      window.addEventListener("load", () => {
+        const overlay = document.getElementById("introOverlay");
+        setTimeout(() => {
+          overlay.classList.add("start-slash");
+        }, 300);
+        setTimeout(() => {
+          overlay.classList.add("split");
+          document.body.classList.add("loaded");
+        }, 600);
+        setTimeout(() => {
+          overlay.remove();
+        }, 1500);
+      });
+
+      const buttons = document.querySelectorAll(".menu-btn");
+      const panels = document.querySelectorAll(".panel");
+      let isTransitioning = false;
+
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const targetId = button.getAttribute("data-target");
+          const currentPanel = document.querySelector(".panel.active-panel");
+          const nextPanel = document.getElementById(targetId);
+
+          // Se clicar no botão que já está ativo ou em transição, não faz nada
+          if (currentPanel === nextPanel || isTransitioning) return;
+
+          isTransitioning = true;
+
+          // 1. Atualiza o estado dos botões imediatamente
+          buttons.forEach((btn) => btn.classList.remove("active"));
+          button.classList.add("active");
+
+          // 2. Aplica o corte fatal no painel atual
+          if (currentPanel) {
+            currentPanel.classList.remove("active-panel");
+            currentPanel.classList.add("slashed-out");
+
+            // 3. Espera a animação de saída para mostrar o novo
+            setTimeout(() => {
+              currentPanel.classList.remove("slashed-out");
+              void nextPanel.offsetWidth;
+              nextPanel.classList.add("active-panel");
+              isTransitioning = false;
+            }, 300);
+          } else {
+            nextPanel.classList.add("active-panel");
+            isTransitioning = false;
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
